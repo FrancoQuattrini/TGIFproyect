@@ -7,6 +7,8 @@ if(pagsHouse){
     upFetch("senate")
  }
 
+
+
 function upFetch(page) {
     let init = {
         headers: {
@@ -23,7 +25,6 @@ function upFetch(page) {
         .catch(err => console.error(err.message))
     
 }
-
 
 function inFetch(dataMembers) {
     if (document.title == "TGIF Home") {
@@ -140,33 +141,25 @@ function inFetch(dataMembers) {
         
         let votesWPartyD = []
         let votesWPartyR = []
+        let votesMissedwPartyD = []
+        let votesMissedwPartyR = []
+        let totalVoteswPartyD = []
+        let totalVoteswPartyR = []
+
         dataMembers.forEach(member => {
             if (member.party == "D") {
                 votesWPartyD.push(member.votes_with_party_pct)
+                votesMissedwPartyD.push(member.missed_votes)
+                totalVoteswPartyD.push(member.total_votes)
             } else if (member.party == "R") {
                 votesWPartyR.push(member.votes_with_party_pct)
-    
+                votesMissedwPartyR.push(member.missed_votes)
+                totalVoteswPartyR.push(member.total_votes)
             } 
         })
         
         statistics.percentageVotesDemocrats = (votesWPartyD.reduce((a,b) => a + b ) / statistics.numberDemocrats).toFixed(2)
         statistics.percentageVotesRepublicans = (votesWPartyR.reduce((a,b) => a + b ) / statistics.numberRepublicans).toFixed(2)
-    
-        let votesMissedwPartyD = []
-        let votesMissedwPartyR = []
-        let totalVoteswPartyD = []
-        let totalVoteswPartyR = []
-    
-        dataMembers.forEach(member => {
-            if (member.party == "D") {
-                votesMissedwPartyD.push(member.missed_votes)
-                totalVoteswPartyD.push(member.total_votes)
-            } else if (member.party == "R") {
-                votesMissedwPartyR.push(member.missed_votes)
-                totalVoteswPartyR.push(member.total_votes)
-            }
-        })
-    
         statistics.percentageMissedVotesDemocrats = (votesMissedwPartyD.reduce((a, b) => a + b) * 100 / totalVoteswPartyD.reduce((a, b) => a + b)).toFixed(2)
         statistics.percentageMissedVotesRepublicans = (votesMissedwPartyR.reduce((a, b) => a + b) * 100 / totalVoteswPartyR.reduce((a, b) => a + b)).toFixed(2)
     
@@ -199,117 +192,72 @@ function inFetch(dataMembers) {
     
         if (document.title == "TGIF House Attendance" || document.title == "TGIF Senate Attendance" ) {
             
-            function rowTableTwo() {
-                let trDemocrats = document.querySelector("#trD")
-                let tdNumberDemocrats = document.createElement("td")
-                tdNumberDemocrats.innerText = statistics.numberDemocrats
-                trDemocrats.appendChild(tdNumberDemocrats)
-                let tdDemocratsVotes = document.createElement("td")
-                tdDemocratsVotes.innerText = statistics.percentageMissedVotesDemocrats + " %"
-                trD.appendChild(tdDemocratsVotes)
-                let trRepublicans = document.querySelector("#trR")
-                let tdNumberRepublicans = document.createElement("td")
-                tdNumberRepublicans.innerText = statistics.numberRepublicans
-                trRepublicans.appendChild(tdNumberRepublicans)
-                let tdVotesRepublicans = document.createElement("td")
-                tdVotesRepublicans.innerText = statistics.percentageMissedVotesRepublicans + " %"
-                trRepublicans.appendChild(tdVotesRepublicans)
-                let trIndependents = document.querySelector("#trID")
-                let tdNumberIndependents = document.createElement("td")
-                tdNumberIndependents.innerText = statistics.numberIndependents
-                trIndependents.appendChild(tdNumberIndependents)
-                let tdVotesIndependents = document.createElement("td")
-                tdVotesIndependents.innerText = "-"
-                trIndependents.appendChild(tdVotesIndependents)
-                let trTotal = document.querySelector("#trTotal")
-                let tdNumberTotal = document.createElement("td")
-                tdNumberTotal.innerText = statistics.numberPartiesTotal
-                trTotal.appendChild(tdNumberTotal)
-                let tdVotesTotal = document.createElement("td")
-                tdVotesTotal.innerText = "-"
-                trTotal.appendChild(tdVotesTotal)
-            }
-            rowTableTwo()
-    
-            function pintarTablatestito(array, tbodyid) {
+            function rowTableTwo(array, tbodyid) {
+                let tbodyAttendance = document.querySelector("#tbodyAttendance")
+                tbodyAttendance.innerHTML= `<tr>
+                                                <td>Democrats</td>
+                                                <td>${statistics.numberDemocrats}</td>
+                                                <td>${statistics.percentageMissedVotesDemocrats} %</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Republicans</td>
+                                                <td>${statistics.numberRepublicans}</td>
+                                                <td>${statistics.percentageMissedVotesRepublicans} %</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Independents</td>
+                                                <td>${statistics.numberIndependents}</td>
+                                                <td>-</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total</td>
+                                                <td>${statistics.numberPartiesTotal}</td>
+                                                <td>-</td>
+                                            </tr>`
                 array.forEach(member => {
                     let tr = document.createElement("tr")
                     tbodyid.appendChild(tr)
-                    let tdFullName = document.createElement("td")
-                    tr.appendChild(tdFullName)
-                    let urlName = document.createElement("a")
-                    urlName.href = member.url
-                    urlName.innerText = member.last_name + " " + member.first_name + " " + (member.middle_name || " " )
-                    tdFullName.appendChild(urlName)
-                    let numberMissedVotes = document.createElement("td")
-                    numberMissedVotes.innerText = member.missed_votes
-                    tr.appendChild(numberMissedVotes)
-                    let pctMissedVotes = document.createElement("td")
-                    pctMissedVotes.innerText = member.missed_votes_pct + " %"
-                    tr.appendChild(pctMissedVotes)
+                    tr.innerHTML= `<td><a target="_blank" href="${member.url}">${member.last_name} ${member.first_name} ${member.middle_name || " "}</a></td>
+                                    <td>${member.missed_votes}</td>
+                                    <td>${member.missed_votes_pct} %</td>`
                 })
-            }
-    
-            pintarTablatestito(statistics.leastEngaged,tbodyLeasEngaged)
-            pintarTablatestito(statistics.mostEngaged, tbodyMostEngaged)
+            }   
+            rowTableTwo(statistics.leastEngaged,tbodyLeasEngaged)
+            rowTableTwo(statistics.mostEngaged, tbodyMostEngaged)
             
         } else {
-            function rowTableTwo() {
-                let trDemocrats = document.querySelector("#trD")
-                let tdNumberDemocrats = document.createElement("td")
-                tdNumberDemocrats.innerText = statistics.numberDemocrats
-                trDemocrats.appendChild(tdNumberDemocrats)
-                let tdDemocratsVotes = document.createElement("td")
-                tdDemocratsVotes.innerText = statistics.percentageVotesDemocrats + " %"
-                trD.appendChild(tdDemocratsVotes)
-                let trRepublicans = document.querySelector("#trR")
-                let tdNumberRepublicans = document.createElement("td")
-                tdNumberRepublicans.innerText = statistics.numberRepublicans
-                trRepublicans.appendChild(tdNumberRepublicans)
-                let tdVotesRepublicans = document.createElement("td")
-                tdVotesRepublicans.innerText = statistics.percentageVotesRepublicans + " %"
-                trRepublicans.appendChild(tdVotesRepublicans)
-                let trIndependents = document.querySelector("#trID")
-                let tdNumberIndependents = document.createElement("td")
-                tdNumberIndependents.innerText = statistics.numberIndependents
-                trIndependents.appendChild(tdNumberIndependents)
-                let tdVotesIndependents = document.createElement("td")
-                tdVotesIndependents.innerText = "-"
-                trIndependents.appendChild(tdVotesIndependents)
-                let trTotal = document.querySelector("#trTotal")
-                let tdNumberTotal = document.createElement("td")
-                tdNumberTotal.innerText = statistics.numberPartiesTotal
-                trTotal.appendChild(tdNumberTotal)
-                let tdVotesTotal = document.createElement("td")
-                tdVotesTotal.innerText = "-"
-                trTotal.appendChild(tdVotesTotal)
-            }
-            rowTableTwo()
-            
-    
-            function pintarTablasTest(array, tbodyid) {
+            function rowTableTwo(array, tbodyid) {
+                let tbodyAttendance = document.querySelector("#tbodyAttendance")
+                tbodyAttendance.innerHTML= `<tr>
+                                                <td>Democrats</td>
+                                                <td>${statistics.numberDemocrats}</td>
+                                                <td>${statistics.percentageVotesDemocrats} %</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Republicans</td>
+                                                <td>${statistics.numberRepublicans}</td>
+                                                <td>${statistics.percentageVotesRepublicans} %</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Independents</td>
+                                                <td>${statistics.numberIndependents}</td>
+                                                <td>-</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total</td>
+                                                <td>${statistics.numberPartiesTotal}</td>
+                                                <td>-</td>
+                                            </tr>`
                 array.forEach(member => {
                     let tr = document.createElement("tr")
                     tbodyid.appendChild(tr)
-                    let tdFullName = document.createElement("td")
-                    tr.appendChild(tdFullName)
-                    let urlName = document.createElement("a")
-                    urlName.href = member.url
-                    urlName.innerText = member.last_name + " " + member.first_name + " " + (member.middle_name || " " )
-                    tdFullName.appendChild(urlName)
-                    let numberPartyVotes = document.createElement("td")
-                    numberPartyVotes.innerText = ((member.total_votes - member.missed_votes)* member.votes_with_party_pct / 100).toFixed(0)
-                    tr.appendChild(numberPartyVotes)
-                    let pctPartyVotes = document.createElement("td")
-                    pctPartyVotes.innerText = member.votes_with_party_pct + " %"
-                    tr.appendChild(pctPartyVotes)
-                })
+                    tr.innerHTML= `<td><a target="_blank" href="${member.url}">${member.last_name} ${member.first_name} ${member.middle_name || " "}</a></td>
+                                    <td>${((member.total_votes - member.missed_votes)* member.votes_with_party_pct / 100).toFixed(0)}</td>
+                                    <td>${member.votes_with_party_pct} %</td>`
+                })                                            
             }
-    
-            pintarTablasTest(statistics.leastLoyal,tbodyLeastLoyal)
-            pintarTablasTest(statistics.mostLoyal,tbodyMostLoyal)
-    
+            rowTableTwo(statistics.leastLoyal,tbodyLeastLoyal)
+            rowTableTwo(statistics.mostLoyal,tbodyMostLoyal)
         }
     }
-    
 }
