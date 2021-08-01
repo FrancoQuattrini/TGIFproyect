@@ -1,3 +1,9 @@
+window.addEventListener("load", () => {
+    let containerLoader = document.querySelector(".container-loader")
+    containerLoader.style.opacity = 100
+    containerLoader.style.visibility = "hidden"
+}) 
+
 let pagsHouse = document.querySelector("#house")
 let pagsSenate = document.querySelector("#senate")
 
@@ -6,8 +12,6 @@ if(pagsHouse){
  }else {
     upFetch("senate")
  }
-
-
 
 function upFetch(page) {
     let init = {
@@ -55,27 +59,14 @@ function inFetch(dataMembers) {
             tbody.innerHTML = " "
             readFilters()
             dataShow.forEach(member => {
-                let tr = document.createElement("tr")
+                                let tr = document.createElement("tr")
                 tbody.appendChild(tr)
-                let tdFullName = document.createElement("td")
-                tr.appendChild(tdFullName)
-                let urlName = document.createElement("a")
-                urlName.href = member.url
-                urlName.innerText = member.last_name + " " + member.first_name + " " + (member.middle_name || " " )
-                tdFullName.appendChild(urlName)
-                let tdParty = document.createElement("td")
-                tdParty.innerText = member.party
-                tr.appendChild(tdParty)
-                let tdState = document.createElement("td")
-                tdState.innerText = member.state
-                tr.appendChild(tdState)
-                let tdYearsInOffice = document.createElement("td")
-                tdYearsInOffice.innerText = member.seniority
-                tr.appendChild(tdYearsInOffice)
-                let tdVotesWparty = document.createElement("td")
-                tdVotesWparty.innerText = member.votes_with_party_pct + " %"
-                tr.appendChild(tdVotesWparty) 
-            });
+                tr.innerHTML =` <td><a href="${member.url}" target="_blank">${member.last_name} ${member.first_name} ${member.middle_name || " "}</a></td>
+                                <td>${member.party}</td>
+                                <td>${member.state}</td>
+                                <td>${member.seniority}</td>
+                                <td>${member.votes_with_party_pct} %</td>`
+            })
         }
     
         rowTable()
@@ -193,8 +184,8 @@ function inFetch(dataMembers) {
         if (document.title == "TGIF House Attendance" || document.title == "TGIF Senate Attendance" ) {
             
             function rowTableTwo(array, tbodyid) {
-                let tbodyAttendance = document.querySelector("#tbodyAttendance")
-                tbodyAttendance.innerHTML= `<tr>
+                let tbodyTables = document.querySelector("#tbodyTables")
+                tbodyTables.innerHTML= `<tr>
                                                 <td>Democrats</td>
                                                 <td>${statistics.numberDemocrats}</td>
                                                 <td>${statistics.percentageMissedVotesDemocrats} %</td>
@@ -227,8 +218,8 @@ function inFetch(dataMembers) {
             
         } else {
             function rowTableTwo(array, tbodyid) {
-                let tbodyAttendance = document.querySelector("#tbodyAttendance")
-                tbodyAttendance.innerHTML= `<tr>
+                let tbodyTables = document.querySelector("#tbodyTables")
+                tbodyTables.innerHTML= `<tr>
                                                 <td>Democrats</td>
                                                 <td>${statistics.numberDemocrats}</td>
                                                 <td>${statistics.percentageVotesDemocrats} %</td>
