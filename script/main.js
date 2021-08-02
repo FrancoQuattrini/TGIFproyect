@@ -1,17 +1,10 @@
-window.addEventListener("load", () => {
-    let containerLoader = document.querySelector(".container-loader")
-    containerLoader.style.opacity = 100
-    containerLoader.style.visibility = "hidden"
-}) 
-
-let pagsHouse = document.querySelector("#house")
-let pagsSenate = document.querySelector("#senate")
-
-if(pagsHouse){
-    upFetch("house")
- }else {
-    upFetch("senate")
- }
+if (document.title != "TGIF Home") {
+    window.addEventListener("load", () => {
+        let containerLoader = document.querySelector(".container-loader")
+        containerLoader.style.opacity = 100
+        containerLoader.style.visibility = "hidden"
+    }) 
+}
 
 function upFetch(page) {
     let init = {
@@ -29,6 +22,8 @@ function upFetch(page) {
         .catch(err => console.error(err.message))
     
 }
+
+document.title.includes("House") ? upFetch("house") : upFetch("senate")
 
 function inFetch(dataMembers) {
     if (document.title == "TGIF Home") {
@@ -180,20 +175,19 @@ function inFetch(dataMembers) {
         let tbodyMostEngaged = document.querySelector("#tbodyMostEngaged")
         let tbodyLeastLoyal = document.querySelector("#tbodyLeastLoyal")
         let tbodyMostLoyal = document.querySelector("#tbodyMostLoyal")
-    
-        if (document.title == "TGIF House Attendance" || document.title == "TGIF Senate Attendance" ) {
-            
-            function rowTableTwo(array, tbodyid) {
+
+        function rowTableTwo(title, dataToShowD, dataToShowR, array, tbodyid) {
+            if (document.title.includes(title)) {
                 let tbodyTables = document.querySelector("#tbodyTables")
                 tbodyTables.innerHTML= `<tr>
                                                 <td>Democrats</td>
                                                 <td>${statistics.numberDemocrats}</td>
-                                                <td>${statistics.percentageMissedVotesDemocrats} %</td>
+                                                <td>${dataToShowD} %</td>
                                             </tr>
                                             <tr>
                                                 <td>Republicans</td>
                                                 <td>${statistics.numberRepublicans}</td>
-                                                <td>${statistics.percentageMissedVotesRepublicans} %</td>
+                                                <td>${dataToShowR} %</td>
                                             </tr>
                                             <tr>
                                                 <td>Independents</td>
@@ -208,47 +202,22 @@ function inFetch(dataMembers) {
                 array.forEach(member => {
                     let tr = document.createElement("tr")
                     tbodyid.appendChild(tr)
-                    tr.innerHTML= `<td><a target="_blank" href="${member.url}">${member.last_name} ${member.first_name} ${member.middle_name || " "}</a></td>
-                                    <td>${member.missed_votes}</td>
-                                    <td>${member.missed_votes_pct} %</td>`
+                    if (title == "Attendance") {
+                        tr.innerHTML= `<td><a target="_blank" href="${member.url}">${member.last_name} ${member.first_name} ${member.middle_name || " "}</a></td>
+                        <td>${member.missed_votes}</td>
+                        <td>${member.missed_votes_pct} %</td>`
+                    } else {
+                        tr.innerHTML= `<td><a target="_blank" href="${member.url}">${member.last_name} ${member.first_name} ${member.middle_name || " "}</a></td>
+                        <td>${((member.total_votes - member.missed_votes)* member.votes_with_party_pct / 100).toFixed(0)}</td>
+                        <td>${member.votes_with_party_pct} %</td>`
+                    }
+
                 })
-            }   
-            rowTableTwo(statistics.leastEngaged,tbodyLeasEngaged)
-            rowTableTwo(statistics.mostEngaged, tbodyMostEngaged)
-            
-        } else {
-            function rowTableTwo(array, tbodyid) {
-                let tbodyTables = document.querySelector("#tbodyTables")
-                tbodyTables.innerHTML= `<tr>
-                                                <td>Democrats</td>
-                                                <td>${statistics.numberDemocrats}</td>
-                                                <td>${statistics.percentageVotesDemocrats} %</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Republicans</td>
-                                                <td>${statistics.numberRepublicans}</td>
-                                                <td>${statistics.percentageVotesRepublicans} %</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Independents</td>
-                                                <td>${statistics.numberIndependents}</td>
-                                                <td>-</td>
-                                            </tr>
-                                            <tr>
-                                                <td>Total</td>
-                                                <td>${statistics.numberPartiesTotal}</td>
-                                                <td>-</td>
-                                            </tr>`
-                array.forEach(member => {
-                    let tr = document.createElement("tr")
-                    tbodyid.appendChild(tr)
-                    tr.innerHTML= `<td><a target="_blank" href="${member.url}">${member.last_name} ${member.first_name} ${member.middle_name || " "}</a></td>
-                                    <td>${((member.total_votes - member.missed_votes)* member.votes_with_party_pct / 100).toFixed(0)}</td>
-                                    <td>${member.votes_with_party_pct} %</td>`
-                })                                            
             }
-            rowTableTwo(statistics.leastLoyal,tbodyLeastLoyal)
-            rowTableTwo(statistics.mostLoyal,tbodyMostLoyal)
-        }
+        }   
+        rowTableTwo("Attendance", statistics.percentageMissedVotesDemocrats, statistics.percentageMissedVotesRepublicans, statistics.leastEngaged, tbodyLeasEngaged)
+        rowTableTwo("Attendance", statistics.percentageMissedVotesDemocrats, statistics.percentageMissedVotesRepublicans, statistics.mostEngaged, tbodyMostEngaged)
+        rowTableTwo("Loyalty", statistics.percentageVotesDemocrats, statistics.percentageVotesRepublicans, statistics.leastLoyal,tbodyLeastLoyal,)
+        rowTableTwo("Loyalty", statistics.percentageVotesDemocrats, statistics.percentageVotesRepublicans, statistics.mostLoyal,tbodyMostLoyal,)
     }
 }
